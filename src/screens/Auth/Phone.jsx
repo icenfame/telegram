@@ -1,51 +1,64 @@
 import KeyboardAvoider from "../../components/KeyboardAvoider";
+import mtproto from "../../mtproto";
 import colors from "../../styles/colors";
 import styles from "./styles";
-import MTProto from "@mtproto/core/envs/browser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Text, View, TextInput, TouchableOpacity, Image } from "react-native";
-import "react-native-get-random-values";
-import { polyfillGlobal } from "react-native/Libraries/Utilities/PolyfillFunctions";
-import { TextEncoder, TextDecoder } from "web-encoding";
-
-polyfillGlobal("TextEncoder", () => TextEncoder);
-polyfillGlobal("TextDecoder", () => TextDecoder);
-
-class CustomStorage {
-  set(key, value) {
-    return AsyncStorage.setItem(key, value);
-  }
-
-  get(key) {
-    return AsyncStorage.getItem(key);
-  }
-}
 
 export default function AuthPhoneScreen({ navigation }) {
+  const [phone, setPhone] = useState(null);
+  const [country, setCountry] = useState(null);
+  const input = useRef(null);
+
+  const countries = {
+    UA: "+380",
+  };
+
   useEffect(() => {
-    const api_id = process.env.API_ID;
-    const api_hash = process.env.API_HASH;
+    // (async () => {
+    //   await AsyncStorage.clear();
 
-    // const mtproto = new MTProto({
-    //   api_id,
-    //   api_hash,
-    //   storageOptions: {
-    //     instance: new CustomStorage(),
-    //   },
-    // });
+    //   const res = await AsyncStorage.getAllKeys();
 
-    // console.log("Hello from useEffect");
-    // const start = Date.now();
+    //   console.log(res);
+    // })();
 
-    // mtproto.call("help.getNearestDc").then((result) => {
-    //   console.log("country:", result.country, Date.now() - start, "ms");
-    //   setCountry(result.country);
-    // });
+    const start = Date.now();
+    mtproto.call("help.getNearestDc").then((result) => {
+      console.log(result.country, Date.now() - start, "ms");
+      setCountry(result.country);
+      input.current.focus();
+    });
+
+    (async () => {
+      try {
+        const me = await mtproto.call("users.getFullUser", {
+          id: {
+            _: "inputUserSelf",
+          },
+        });
+
+        if (me) {
+          navigation.replace("SettingsProfile");
+
+          return;
+        }
+      } catch (error) {}
+    })();
   }, []);
 
-  const phoneSubmit = () => {
-    navigation.push("AuthCode");
+  const phoneSubmit = async () => {
+    const { phone_code_hash } = await mtproto.call("auth.sendCode", {
+      phone_number: phone,
+      settings: {
+        _: "codeSettings",
+      },
+    });
+
+    console.log(phone, phone_code_hash);
+
+    navigation.push("AuthCode", { phone_number: phone, phone_code_hash });
   };
 
   return (
@@ -53,7 +66,7 @@ export default function AuthPhoneScreen({ navigation }) {
       <KeyboardAvoider style={styles.container}>
         <Image
           source={{
-            url: "https://seeklogo.com/images/T/telegram-logo-AD3D08A014-seeklogo.com.png",
+            url: "https://www.onlinepalette.com/wp-content/uploads/2021/07/Telegram-Main-Logo.png",
           }}
           style={styles.logo}
         />
@@ -63,9 +76,13 @@ export default function AuthPhoneScreen({ navigation }) {
 
         <TextInput
           placeholder="Phone"
-          maxLength={20}
           selectionColor={colors.primary}
           style={styles.input}
+          keyboardType="phone-pad"
+          defaultValue={countries[country]}
+          maxLength={13}
+          ref={input}
+          onChangeText={setPhone}
         />
 
         <TouchableOpacity
