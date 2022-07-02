@@ -1,13 +1,14 @@
 import AuthCodeScreen from "./screens/Auth/Code";
 import AuthPasswordScreen from "./screens/Auth/Password";
 import AuthPhoneScreen from "./screens/Auth/Phone";
+import ChatsDialogsScreen from "./screens/Chats/Dialogs";
 import SettingsProfileScreen from "./screens/Settings/Profile";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as expo from "expo";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
-import { View } from "react-native";
+import { SafeAreaView } from "react-native";
 import WebviewCrypto from "react-native-webview-crypto";
 
 export default function App() {
@@ -18,7 +19,7 @@ export default function App() {
   }, []);
 
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <StatusBar style="auto" />
       <WebviewCrypto />
 
@@ -64,9 +65,18 @@ export default function App() {
               headerBackTitle: "Back",
             }}
           />
+
+          <Stack.Screen
+            name="ChatsDialogs"
+            component={ChatsDialogsScreen}
+            options={{
+              headerTitle: "Chats",
+              headerBackTitle: "My profile",
+            }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
-    </View>
+    </SafeAreaView>
   );
 }
 

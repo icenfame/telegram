@@ -73,7 +73,28 @@ export default function SettingsProfileScreen({ navigation }) {
       <Text style={styles.logoCaption}>{profile?.full_user.about}</Text>
 
       <TouchableOpacity onPress={logOut}>
-        <Text>Logout</Text>
+        <Text
+          style={{
+            color: "red",
+          }}
+        >
+          Logout
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => navigation.push("ChatsDialogs")}
+        style={{
+          marginTop: 64,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+          }}
+        >
+          Chats
+        </Text>
       </TouchableOpacity>
     </View>
   );
