@@ -67,6 +67,7 @@ export default StyleSheet.create({
 
   chatDateRead: {
     flexDirection: "row",
+    alignItems: "center",
 
     // backgroundColor: "blue",
   },
@@ -87,6 +88,12 @@ export default StyleSheet.create({
     fontSize: 16,
     color: colors.primary,
     marginLeft: 4,
+  },
+  chatSavedMessages: {
+    fontSize: 40,
+    color: colors.white,
+
+    textAlign: "center",
   },
 
   chatFooter: {
