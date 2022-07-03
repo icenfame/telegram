@@ -37,9 +37,7 @@ export default function AuthCodeScreen({ navigation, route }) {
     <View style={styles.container}>
       <KeyboardAvoider style={styles.container}>
         <Image
-          source={{
-            url: "https://www.onlinepalette.com/wp-content/uploads/2021/07/Telegram-Main-Logo.png",
-          }}
+          source={require("../../../assets/icon.png")}
           style={styles.logo}
         />
 

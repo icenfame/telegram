@@ -1,8 +1,8 @@
 {
   "expo": {
     "entryPoint": "./src/App.js",
-    "name": "telegram",
-    "slug": "telegram",
+    "name": "Telegram",
+    "slug": "Telegram",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
