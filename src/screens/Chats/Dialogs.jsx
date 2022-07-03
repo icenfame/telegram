@@ -1,5 +1,7 @@
 import mtproto from "../../mtproto";
 import colors from "../../styles/colors";
+import getAvatarColor from "../../utils/getAvatarColor";
+import getAvatarTitle from "../../utils/getAvatarTitle";
 import getChatPhoto from "../../utils/getChatPhoto";
 import getMediaType from "../../utils/getMediaType";
 import styles from "./styles";
@@ -23,17 +25,6 @@ export default function ChatsDialogsScreen({ navigation }) {
     // });
 
     (async () => {
-      const colors = [
-        "#ff516a", // red
-        "#54cb68", // green
-        "#2a9ef1", // blue
-        "#665fff", // violet
-        "#d669ed", // pink
-        "#28c9b7", // cyan
-        "#ffa85c", // orange
-      ];
-      const colorsMap = [0, 6, 3, 1, 5, 2, 4];
-
       const dialogs = await mtproto.call("messages.getDialogs", {
         offset_peer: {
           _: "inputPeerEmpty",
@@ -57,7 +48,6 @@ export default function ChatsDialogsScreen({ navigation }) {
           );
           const date = moment.unix(message.date);
           const photo = await getChatPhoto("inputPeerUser", user);
-          const media = getMediaType(message);
 
           allChats.push({
             id: user.id,
@@ -65,7 +55,7 @@ export default function ChatsDialogsScreen({ navigation }) {
               ? "Saved messages"
               : user.first_name + (user.last_name ? " " + user.last_name : ""),
             message: message.message,
-            media: media,
+            media: getMediaType(message),
             unreadCount: dialog.unread_count,
             out: message.out,
             read: dialog.read_outbox_max_id === dialog.top_message,
@@ -73,8 +63,8 @@ export default function ChatsDialogsScreen({ navigation }) {
             verified: user.verified,
             self: user.self,
             photo: photo,
-            photoTitle: user.first_name[0] + (user?.last_name?.[0] ?? ""),
-            photoColor: colors[colorsMap[Math.abs(user.id) % 7]],
+            avatarTitle: getAvatarTitle(user.first_name, user.last_name),
+            avatarColor: getAvatarColor(user.id),
             date: moment.unix(moment().unix()).isSame(date, "date")
               ? date.format("HH:mm")
               : date.format("DD.MM.YYYY"),
@@ -93,22 +83,21 @@ export default function ChatsDialogsScreen({ navigation }) {
           );
           const date = moment.unix(message.date);
           const photo = await getChatPhoto("inputPeerChat", chat);
-          const media = getMediaType(message);
 
           allChats.push({
             id: chat.id,
             title: chat.title,
             message: message.message,
             messageFrom: user.first_name,
-            media: media,
+            media: getMediaType(message),
             unreadCount: dialog.unread_count,
             out: message.out,
             read: dialog.read_outbox_max_id === dialog.top_message,
             pinned: dialog.pinned,
             verified: chat.verified,
             photo: photo,
-            photoTitle: chat.title[0],
-            photoColor: colors[colorsMap[Math.abs(chat.id) % 7]],
+            avatarTitle: getAvatarTitle(chat.title),
+            avatarColor: getAvatarColor(chat.id),
             date: moment.unix(moment().unix()).isSame(date, "date")
               ? date.format("HH:mm")
               : date.format("DD.MM.YYYY"),
@@ -127,22 +116,21 @@ export default function ChatsDialogsScreen({ navigation }) {
           );
           const date = moment.unix(message.date);
           const photo = await getChatPhoto("inputPeerChannel", chat);
-          const media = getMediaType(message);
 
           allChats.push({
             id: chat.id,
             title: chat.title,
             message: message.message,
             messageFrom: user?.first_name,
-            media: media,
+            media: getMediaType(message),
             unreadCount: dialog.unread_count,
             out: !chat.broadcast && message.out,
             read: dialog.read_outbox_max_id === dialog.top_message,
             pinned: dialog.pinned,
             verified: chat.verified,
             photo: photo,
-            photoTitle: chat.title[0],
-            photoColor: colors[colorsMap[Math.abs(chat.id) % 7]],
+            avatarTitle: getAvatarTitle(chat.title),
+            avatarColor: getAvatarColor(chat.id),
             date: moment.unix(moment().unix()).isSame(date, "date")
               ? date.format("HH:mm")
               : date.format("DD.MM.YYYY"),
@@ -174,7 +162,7 @@ export default function ChatsDialogsScreen({ navigation }) {
                   ? {
                       backgroundColor: item.self
                         ? colors.primary
-                        : item.photoColor,
+                        : item.avatarColor,
                     }
                   : null,
               ]}
@@ -186,7 +174,7 @@ export default function ChatsDialogsScreen({ navigation }) {
                   name="bookmark"
                 />
               ) : !item.photo ? (
-                <Text style={styles.chatPhotoText}>{item.photoTitle}</Text>
+                <Text style={styles.chatPhotoText}>{item.avatarTitle}</Text>
               ) : null}
             </ImageBackground>
 

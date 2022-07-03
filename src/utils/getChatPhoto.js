@@ -1,7 +1,7 @@
 import mtproto from "../mtproto";
 import { Buffer } from "buffer";
 
-export default async function getChatPhoto(inputPeer, peer) {
+export default async function (inputPeer, peer) {
   if (peer.photo._ !== "userProfilePhoto" && peer.photo._ !== "chatPhoto") {
     return null;
   }
