@@ -9,9 +9,9 @@ import React, { useEffect, useState, useRef } from "react";
 import {
   Text,
   View,
-  TextInput,
   TouchableOpacity,
   Image,
+  ImageBackground,
   FlatList,
 } from "react-native";
 
@@ -24,12 +24,23 @@ export default function ChatsDialogsScreen({ navigation }) {
     // });
 
     (async () => {
+      const colors = [
+        "#ff516a", // red
+        "#54cb68", // green
+        "#2a9ef1", // blue
+        "#665fff", // violet
+        "#d669ed", // pink
+        "#28c9b7", // cyan
+        "#ffa85c", // orange
+      ];
+      const colorsMap = [0, 6, 3, 1, 5, 2, 4];
+
       const dialogs = await mtproto.call("messages.getDialogs", {
         offset_peer: {
           _: "inputPeerEmpty",
         },
-        // exclude_pinned: true,
-        limit: 4,
+        exclude_pinned: true,
+        limit: 5,
       });
 
       console.log(Object.keys(dialogs), dialogs.dialogs.length);
@@ -46,6 +57,28 @@ export default function ChatsDialogsScreen({ navigation }) {
           );
           const date = moment.unix(message.date);
 
+          let photo = null;
+
+          if (user.photo && user.photo._ === "userProfilePhoto") {
+            photo = await mtproto.call("upload.getFile", {
+              location: {
+                _: "inputPeerPhotoFileLocation",
+                peer: {
+                  _: "inputPeerUser",
+                  user_id: user.id,
+                  access_hash: user.access_hash,
+                },
+                photo_id: user.photo.photo_id,
+              },
+              offset: 0,
+              limit: 32768,
+            });
+
+            photo =
+              "data:image/jpeg;base64," +
+              Buffer.from(photo.bytes).toString("base64");
+          }
+
           allChats.push({
             id: user.id,
             title: user.self
@@ -58,6 +91,9 @@ export default function ChatsDialogsScreen({ navigation }) {
             read: dialog.read_outbox_max_id === dialog.top_message,
             pinned: dialog.pinned,
             verified: user.verified,
+            photo: photo,
+            photoTitle: user.first_name[0] + (user?.last_name?.[0] ?? ""),
+            photoColor: colors[colorsMap[Math.abs(user.id) % 7]],
             date: moment.unix(moment().unix()).isSame(date, "date")
               ? date.format("HH:mm")
               : date.format("DD.MM.YYYY"),
@@ -76,6 +112,27 @@ export default function ChatsDialogsScreen({ navigation }) {
           );
           const date = moment.unix(message.date);
 
+          let photo = null;
+          if (chat.photo._ !== "chatPhotoEmpty") {
+            photo = await mtproto.call("upload.getFile", {
+              location: {
+                _: "inputPeerPhotoFileLocation",
+                peer: {
+                  _: "inputPeerChat",
+                  chat_id: chat.id,
+                  access_hash: chat.access_hash,
+                },
+                photo_id: chat.photo.photo_id,
+              },
+              offset: 0,
+              limit: 32768,
+            });
+
+            photo =
+              "data:image/jpeg;base64," +
+              Buffer.from(photo.bytes).toString("base64");
+          }
+
           allChats.push({
             id: chat.id,
             title: chat.title,
@@ -86,6 +143,9 @@ export default function ChatsDialogsScreen({ navigation }) {
             read: dialog.read_outbox_max_id === dialog.top_message,
             pinned: dialog.pinned,
             verified: chat.verified,
+            photo: photo,
+            photoTitle: chat.title[0],
+            photoColor: colors[colorsMap[Math.abs(chat.id) % 7]],
             date: moment.unix(moment().unix()).isSame(date, "date")
               ? date.format("HH:mm")
               : date.format("DD.MM.YYYY"),
@@ -104,16 +164,40 @@ export default function ChatsDialogsScreen({ navigation }) {
           );
           const date = moment.unix(message.date);
 
+          let photo = null;
+          if (chat.photo._ !== "chatPhotoEmpty") {
+            photo = await mtproto.call("upload.getFile", {
+              location: {
+                _: "inputPeerPhotoFileLocation",
+                peer: {
+                  _: "inputPeerChannel",
+                  channel_id: chat.id,
+                  access_hash: chat.access_hash,
+                },
+                photo_id: chat.photo.photo_id,
+              },
+              offset: 0,
+              limit: 32768,
+            });
+
+            photo =
+              "data:image/jpeg;base64," +
+              Buffer.from(photo.bytes).toString("base64");
+          }
+
           allChats.push({
             id: chat.id,
             title: chat.title,
             message: message.message,
             messageFrom: user?.first_name,
             unreadCount: dialog.unread_count,
-            out: message.out,
+            out: !chat.broadcast && message.out,
             read: dialog.read_outbox_max_id === dialog.top_message,
             pinned: dialog.pinned,
             verified: chat.verified,
+            photo: photo,
+            photoTitle: chat.title[0],
+            photoColor: colors[colorsMap[Math.abs(chat.id) % 7]],
             date: moment.unix(moment().unix()).isSame(date, "date")
               ? date.format("HH:mm")
               : date.format("DD.MM.YYYY"),
@@ -124,7 +208,6 @@ export default function ChatsDialogsScreen({ navigation }) {
       }
 
       setChats(allChats);
-      // console.log(chats);
     })();
   }, []);
 
@@ -135,17 +218,25 @@ export default function ChatsDialogsScreen({ navigation }) {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.chat}>
-            <Image
-              style={styles.chatImage}
-              source={{
-                url: "https://www.onlinepalette.com/wp-content/uploads/2021/07/Telegram-Main-Logo.png",
-              }}
-            ></Image>
+            <ImageBackground
+              source={item.photo ? { uri: item.photo } : null}
+              style={[
+                styles.chatPhoto,
+                !item.photo ? { backgroundColor: item.photoColor } : null,
+              ]}
+              imageStyle={{ borderRadius: 64 }}
+            >
+              {!item.photo ? (
+                <Text style={styles.chatPhotoText}>{item.photoTitle}</Text>
+              ) : null}
+            </ImageBackground>
 
             <View style={styles.chatInfo}>
               <View style={styles.chatHeader}>
                 <View style={styles.chatTitle}>
-                  <Text style={styles.chatTitleText}>{item.title}</Text>
+                  <Text style={styles.chatTitleText} numberOfLines={1}>
+                    {item.title}
+                  </Text>
 
                   {item.verified ? (
                     <MaterialCommunityIcons
@@ -173,7 +264,7 @@ export default function ChatsDialogsScreen({ navigation }) {
               </View>
 
               <View style={styles.chatFooter}>
-                <Text style={styles.chatMessage}>
+                <Text style={styles.chatMessage} numberOfLines={2}>
                   {item.out
                     ? "You: "
                     : item.messageFrom

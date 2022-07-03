@@ -15,7 +15,7 @@ export default StyleSheet.create({
     height: 80,
   },
 
-  chatImage: {
+  chatPhoto: {
     width: 64,
     height: 64,
 
@@ -24,15 +24,22 @@ export default StyleSheet.create({
     alignSelf: "center",
 
     margin: 8,
-
-    // backgroundColor: "red",
     borderRadius: 64,
   },
+  chatPhotoText: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: colors.white,
+    textAlign: "center",
+  },
+
   chatInfo: {
     flex: 1,
     height: 80,
 
     // backgroundColor: "green",
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
 
     paddingRight: 8,
   },
@@ -99,10 +106,10 @@ export default StyleSheet.create({
     // backgroundColor: "aqua",
   },
   chatUnreadCount: {
-    // padding: 16,
-    width: 24,
-    height: 24,
-    borderRadius: 24,
+    minWidth: 20,
+    height: 20,
+    borderRadius: 20,
+    paddingHorizontal: 5,
 
     alignItems: "center",
     justifyContent: "center",
@@ -110,8 +117,9 @@ export default StyleSheet.create({
     backgroundColor: "green",
   },
   chatUnreadCountText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "600",
     color: "#fff",
+    textAlign: "center",
   },
 });
