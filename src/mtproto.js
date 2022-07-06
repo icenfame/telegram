@@ -8,10 +8,6 @@ polyfillGlobal("TextEncoder", () => TextEncoder);
 polyfillGlobal("TextDecoder", () => TextDecoder);
 
 class CustomStorage {
-  constructor() {
-    console.log("MTProto initialization");
-  }
-
   set(key, value) {
     console.log("SET", key, value);
     return AsyncStorage.setItem(key, value);

@@ -7,7 +7,7 @@ import { Buffer } from "buffer";
 import React, { useEffect, useState, useRef } from "react";
 import { Text, View, TextInput, TouchableOpacity, Image } from "react-native";
 
-export default function SettingsProfileScreen({ navigation }) {
+export default function SettingsProfile({ navigation }) {
   const [profile, setProfile] = useState(null);
 
   useEffect(() => {

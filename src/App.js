@@ -1,8 +1,8 @@
-import AuthCodeScreen from "./screens/Auth/Code";
-import AuthPasswordScreen from "./screens/Auth/Password";
-import AuthPhoneScreen from "./screens/Auth/Phone";
-import ChatsDialogsScreen from "./screens/Chats/Dialogs";
-import SettingsProfileScreen from "./screens/Settings/Profile";
+import AuthCode from "./screens/Auth/Code";
+import AuthPassword from "./screens/Auth/Password";
+import AuthPhone from "./screens/Auth/Phone";
+import ChatsDialogs from "./screens/Chats/Dialogs";
+import SettingsProfile from "./screens/Settings/Profile";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as expo from "expo";
@@ -27,7 +27,7 @@ export default function App() {
         <Stack.Navigator initialRouteName="AuthPhone">
           <Stack.Screen
             name="AuthPhone"
-            component={AuthPhoneScreen}
+            component={AuthPhone}
             options={{
               headerTitle: "",
               headerTransparent: true,
@@ -36,7 +36,7 @@ export default function App() {
           />
           <Stack.Screen
             name="AuthCode"
-            component={AuthCodeScreen}
+            component={AuthCode}
             options={{
               headerTitle: "",
               headerTransparent: true,
@@ -46,7 +46,7 @@ export default function App() {
           />
           <Stack.Screen
             name="AuthPassword"
-            component={AuthPasswordScreen}
+            component={AuthPassword}
             options={{
               headerTitle: "",
               headerTransparent: true,
@@ -57,7 +57,7 @@ export default function App() {
 
           <Stack.Screen
             name="SettingsProfile"
-            component={SettingsProfileScreen}
+            component={SettingsProfile}
             options={{
               headerTitle: "",
               headerTransparent: true,
@@ -68,7 +68,7 @@ export default function App() {
 
           <Stack.Screen
             name="ChatsDialogs"
-            component={ChatsDialogsScreen}
+            component={ChatsDialogs}
             options={{
               headerTitle: "Chats",
               headerBackTitle: "My profile",

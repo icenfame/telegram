@@ -5,7 +5,7 @@ import styles from "./styles";
 import React, { useEffect, useState, useRef } from "react";
 import { Text, View, TextInput, TouchableOpacity, Image } from "react-native";
 
-export default function AuthCodeScreen({ navigation, route }) {
+export default function AuthCode({ navigation, route }) {
   const [code, setCode] = useState(null);
   const input = useRef(null);
 

@@ -1,4 +1,4 @@
-export default function (...titles) {
+export function getAvatarTitle(...titles) {
   const res = [];
 
   for (const title of titles) {

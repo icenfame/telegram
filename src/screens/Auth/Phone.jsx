@@ -6,7 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState, useRef } from "react";
 import { Text, View, TextInput, TouchableOpacity, Image } from "react-native";
 
-export default function AuthPhoneScreen({ navigation }) {
+export default function AuthPhone({ navigation }) {
   const [phone, setPhone] = useState(null);
   const [country, setCountry] = useState(null);
   const input = useRef(null);

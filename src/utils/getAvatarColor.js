@@ -1,4 +1,4 @@
-export default function (peerId) {
+export function getAvatarColor(peerId) {
   const colors = [
     "#ff516a", // red
     "#54cb68", // green

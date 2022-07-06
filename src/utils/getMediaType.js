@@ -1,4 +1,4 @@
-export default function (message) {
+export function getMediaType(message) {
   // Photo compressed
   if (message.media?._ === "messageMediaPhoto") {
     return "📷 Photo";
