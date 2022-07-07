@@ -1,12 +1,13 @@
 import mtproto from "../../mtproto";
 import colors from "../../styles/colors";
-import getAvatarColor from "../../utils/getAvatarColor";
-import getAvatarTitle from "../../utils/getAvatarTitle";
-import getChatPhoto from "../../utils/getChatPhoto";
-import getMediaType from "../../utils/getMediaType";
+import { convertDate } from "../../utils/convertDate";
+import { generateRandomId } from "../../utils/generateRandomId";
+import { getAvatarColor } from "../../utils/getAvatarColor";
+import { getAvatarTitle } from "../../utils/getAvatarTitle";
+import { getChatPhoto } from "../../utils/getChatPhoto";
+import { getMediaType } from "../../utils/getMediaType";
 import styles from "./styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import moment from "moment";
 import React, { useEffect, useState, useRef } from "react";
 import {
   Text,
@@ -16,45 +17,304 @@ import {
   FlatList,
 } from "react-native";
 
-export default function ChatsDialogsScreen({ navigation }) {
+export default function ChatsDialogs({ navigation }) {
+  const chatsRef = useRef([]);
   const [chats, setChats] = useState([]);
 
   useEffect(() => {
-    // mtproto.updates.on("updates", (updateInfo) => {
-    //   console.log("updates:", updateInfo);
-    // });
+    const updatesTooLongHandler = (updateInfo) => {
+      console.log("updatesTooLong:", updateInfo);
+    };
+    const updatesCombinedHandler = (updateInfo) => {
+      console.log("updatesCombined:", updateInfo);
+    };
+
+    const updateShortMessageHandler = async (updateInfo) => {
+      // Private new message
+      const index = chatsRef.current.findIndex(
+        (chat) => chat.id === updateInfo.user_id
+      );
+
+      if (index !== -1) {
+        chatsRef.current = [
+          {
+            ...chatsRef.current[index],
+            message: updateInfo.message,
+            messageId: updateInfo.id,
+            unreadCount: updateInfo.out
+              ? 0
+              : ++chatsRef.current[index].unreadCount,
+            out: updateInfo.out,
+            typing: false,
+            read: false,
+            date: convertDate(updateInfo.date),
+          },
+          ...chatsRef.current.filter((chat) => chat.id !== updateInfo.user_id),
+        ];
+        setChats(chatsRef.current);
+      } else {
+        const chat = await mtproto.call("messages.getPeerDialogs", {
+          peers: [
+            {
+              _: "inputDialogPeer",
+              peer: {
+                _: "inputPeerUser",
+                user_id: updateInfo.user_id,
+              },
+            },
+          ],
+        });
+
+        const dialog = chat.dialogs[0];
+        const user = chat.users[0];
+        const message = chat.messages[0];
+
+        chatsRef.current = [
+          {
+            id: user.id,
+            accessHash: user.access_hash,
+            title: user.self
+              ? "Saved messages"
+              : user.first_name + (user.last_name ? " " + user.last_name : ""),
+            message: message.message,
+            messageId: message.id,
+            media: getMediaType(message),
+            unreadCount: dialog.unread_count,
+            out: message.out,
+            read: dialog.read_outbox_max_id === dialog.top_message,
+            pinned: dialog.pinned,
+            verified: user.verified,
+            self: user.self,
+            photo: await getChatPhoto("inputPeerUser", user),
+            avatarTitle: getAvatarTitle(user.first_name, user.last_name),
+            avatarColor: getAvatarColor(user.id),
+            online: user.status._ === "userStatusOnline",
+            typing: false,
+            date: convertDate(message.date),
+            dateSeconds: message.date,
+          },
+          ...chatsRef.current.filter((chat) => chat.id !== updateInfo.user_id),
+        ];
+        setChats(chatsRef.current);
+
+        console.log(dialog);
+      }
+
+      console.log("updateShortMessage:", updateInfo);
+    };
+    const updateShortChatMessageHandler = (updateInfo) => {
+      console.log("updateShortChatMessage:", updateInfo);
+    };
+    const updateShortSentMessageHandler = (updateInfo) => {
+      console.log("updateShortSentMessage:", updateInfo);
+    };
+
+    const updateShortHandler = async (updateInfo) => {
+      if (updateInfo.update._ === "updateUserStatus") {
+        if (
+          chatsRef.current.find((chat) => chat.id === updateInfo.update.user_id)
+        ) {
+          chatsRef.current = chatsRef.current.map((chat) =>
+            chat.id === updateInfo.update.user_id
+              ? {
+                  ...chat,
+                  online: updateInfo.update?.status._ === "userStatusOnline",
+                }
+              : chat
+          );
+          setChats(chatsRef.current);
+        }
+
+        return;
+      }
+
+      if (
+        updateInfo.update._ === "updateUserTyping" &&
+        updateInfo.update.user_id
+      ) {
+        chatsRef.current = chatsRef.current.map((chat) =>
+          chat.id === updateInfo.update.user_id
+            ? {
+                ...chat,
+                typing: true,
+              }
+            : chat
+        );
+        setChats(chatsRef.current);
+
+        setTimeout(() => {
+          chatsRef.current = chatsRef.current.map((chat) =>
+            chat.id === updateInfo.update.user_id
+              ? {
+                  ...chat,
+                  typing: false,
+                }
+              : chat
+          );
+          setChats(chatsRef.current);
+        }, 5000);
+      }
+
+      if (
+        updateInfo.update._ === "userProfilePhoto" &&
+        updateInfo.update.user_id
+      ) {
+        chatsRef.current = await Promise.all(
+          chatsRef.current.map(async (chat) =>
+            chat.id === updateInfo.update.user_id
+              ? {
+                  ...chat,
+                  photo: await getChatPhoto("inputPeerChat", {
+                    photo: {
+                      _: "userProfilePhoto",
+                    },
+                    user_id: chat.id,
+                    access_hash: chat.access_hash,
+                    photo_id: updateInfo.update.photo.photo_id,
+                  }),
+                }
+              : chat
+          )
+        );
+        setChats(chatsRef.current);
+      }
+
+      console.log("updateShort:", updateInfo);
+    };
+    const updatesHandler = async (updateInfo) => {
+      if (
+        updateInfo.updates[0]._ === "updateReadHistoryInbox" &&
+        updateInfo.updates[0].peer._ === "peerUser"
+      ) {
+        chatsRef.current = chatsRef.current.map((chat) =>
+          chat.id === updateInfo.updates[0]?.peer?.user_id
+            ? {
+                ...chat,
+                unreadCount: updateInfo.updates[0].still_unread_count,
+              }
+            : chat
+        );
+        setChats(chatsRef.current);
+      }
+
+      if (
+        updateInfo.updates[0]._ === "updateReadHistoryOutbox" &&
+        updateInfo.updates[0].peer._ === "peerUser"
+      ) {
+        chatsRef.current = chatsRef.current.map((chat) =>
+          chat.id === updateInfo.updates[0]?.peer?.user_id
+            ? {
+                ...chat,
+                read: true,
+              }
+            : chat
+        );
+        setChats(chatsRef.current);
+      }
+
+      if (
+        updateInfo.updates[0]._ === "updateEditMessage" &&
+        updateInfo.updates[0]?.message?.peer_id._ === "peerUser"
+      ) {
+        chatsRef.current = chatsRef.current.map((chat) =>
+          chat.id === updateInfo.updates[0]?.message?.peer_id?.user_id
+            ? {
+                ...chat,
+                message: updateInfo.updates[0]?.message.message,
+              }
+            : chat
+        );
+        setChats(chatsRef.current);
+      }
+
+      if (updateInfo.updates[0]._ === "updateDeleteMessages") {
+        const peer = chatsRef.current.find(
+          (chat) => chat.messageId === updateInfo.updates[0]?.messages[0]
+        );
+        const dialog = await mtproto.call("messages.getPeerDialogs", {
+          peers: [
+            {
+              _: "inputDialogPeer",
+              peer: {
+                _: "inputPeerUser",
+                user_id: peer.id,
+                access_hash: peer.accessHash,
+              },
+            },
+          ],
+        });
+
+        console.log(dialog);
+
+        if (
+          chatsRef.current.find(
+            (chat) => chat.dateSeconds < dialog.messages[0].date
+          )
+        ) {
+          chatsRef.current = chatsRef.current.map((chat) =>
+            updateInfo.updates[0]?.messages.find(
+              (message) => chat.messageId === message
+            )
+              ? {
+                  ...chat,
+                  message: dialog.messages[0].message,
+                  unreadCount: dialog.dialogs[0].unread_count,
+                  out: dialog.out,
+                  read: dialog.read_outbox_max_id === dialog.top_message,
+                  date: convertDate(dialog.messages[0].date),
+                  dateSeconds: dialog.messages[0].date,
+                }
+              : chat
+          );
+          chatsRef.current.sort((a, b) => b.dateSeconds > a.dateSeconds);
+        } else {
+          chatsRef.current = chatsRef.current.filter(
+            (chat) => chat.id !== dialog.users[0].id
+          );
+        }
+
+        setChats(chatsRef.current);
+      }
+
+      console.log("updates:", updateInfo, updateInfo.updates.length);
+    };
 
     (async () => {
+      await mtproto.call("account.updateStatus", {
+        offline: false,
+      });
+
       const dialogs = await mtproto.call("messages.getDialogs", {
         offset_peer: {
           _: "inputPeerEmpty",
         },
         exclude_pinned: true,
-        limit: 1,
+        limit: 7,
       });
 
       console.log(Object.keys(dialogs), dialogs.dialogs.length);
-      console.log(dialogs);
+      // console.log(dialogs);
 
       const allChats = [];
 
       for (const dialog of dialogs.dialogs) {
         if (dialog.peer._ === "peerUser") {
           const user = dialogs.users.find(
-            (elem) => elem.id === dialog.peer.user_id
+            (user) => user.id === dialog.peer.user_id
           );
           const message = dialogs.messages.find(
-            (elem) => elem.peer_id.user_id === dialog.peer.user_id
+            (message) => message.peer_id.user_id === dialog.peer.user_id
           );
-          const date = moment.unix(message.date);
           const photo = await getChatPhoto("inputPeerUser", user);
 
           allChats.push({
             id: user.id,
+            accessHash: user.access_hash,
             title: user.self
               ? "Saved messages"
               : user.first_name + (user.last_name ? " " + user.last_name : ""),
             message: message.message,
+            messageId: message.id,
             media: getMediaType(message),
             unreadCount: dialog.unread_count,
             out: message.out,
@@ -65,23 +325,23 @@ export default function ChatsDialogsScreen({ navigation }) {
             photo: photo,
             avatarTitle: getAvatarTitle(user.first_name, user.last_name),
             avatarColor: getAvatarColor(user.id),
-            date: moment.unix(moment().unix()).isSame(date, "date")
-              ? date.format("HH:mm")
-              : date.format("DD.MM.YYYY"),
+            online: user.status._ === "userStatusOnline",
+            typing: false,
+            date: convertDate(message.date),
+            dateSeconds: message.date,
           });
         }
 
         if (dialog.peer._ === "peerChat") {
           const chat = dialogs.chats.find(
-            (elem) => elem.id === dialog.peer.chat_id
+            (chat) => chat.id === dialog.peer.chat_id
           );
           const message = dialogs.messages.find(
-            (elem) => elem.peer_id.chat_id === dialog.peer.chat_id
+            (message) => message.peer_id.chat_id === dialog.peer.chat_id
           );
           const user = dialogs.users.find(
-            (elem) => elem.id === message.from_id.user_id
+            (user) => user.id === message.from_id.user_id
           );
-          const date = moment.unix(message.date);
           const photo = await getChatPhoto("inputPeerChat", chat);
 
           allChats.push({
@@ -98,23 +358,21 @@ export default function ChatsDialogsScreen({ navigation }) {
             photo: photo,
             avatarTitle: getAvatarTitle(chat.title),
             avatarColor: getAvatarColor(chat.id),
-            date: moment.unix(moment().unix()).isSame(date, "date")
-              ? date.format("HH:mm")
-              : date.format("DD.MM.YYYY"),
+            date: convertDate(message.date),
+            dateSeconds: message.date,
           });
         }
 
         if (dialog.peer._ === "peerChannel") {
           const chat = dialogs.chats.find(
-            (elem) => elem.id === dialog.peer.channel_id
+            (chat) => chat.id === dialog.peer.channel_id
           );
           const message = dialogs.messages.find(
-            (elem) => elem.peer_id.channel_id === dialog.peer.channel_id
+            (message) => message.peer_id.channel_id === dialog.peer.channel_id
           );
           const user = dialogs.users.find(
-            (elem) => elem.id === message?.from_id?.user_id
+            (user) => user.id === message?.from_id?.user_id
           );
-          const date = moment.unix(message.date);
           const photo = await getChatPhoto("inputPeerChannel", chat);
 
           allChats.push({
@@ -131,15 +389,57 @@ export default function ChatsDialogsScreen({ navigation }) {
             photo: photo,
             avatarTitle: getAvatarTitle(chat.title),
             avatarColor: getAvatarColor(chat.id),
-            date: moment.unix(moment().unix()).isSame(date, "date")
-              ? date.format("HH:mm")
-              : date.format("DD.MM.YYYY"),
+            date: convertDate(message.date),
+            dateSeconds: message.date,
           });
         }
       }
 
-      setChats(allChats);
+      setChats((chatsRef.current = allChats));
     })();
+
+    const updatesTooLong = mtproto.updates.on(
+      "updatesTooLong",
+      updatesTooLongHandler
+    );
+    const updatesCombined = mtproto.updates.on(
+      "updatesCombined",
+      updatesCombinedHandler
+    );
+
+    const updateShortMessage = mtproto.updates.on(
+      "updateShortMessage",
+      updateShortMessageHandler
+    );
+    const updateShortChatMessage = mtproto.updates.on(
+      "updateShortChatMessage",
+      updateShortChatMessageHandler
+    );
+    const updateShortSentMessage = mtproto.updates.on(
+      "updateShortSentMessage",
+      updateShortSentMessageHandler
+    );
+
+    const updateShort = mtproto.updates.on("updateShort", updateShortHandler);
+    const updates = mtproto.updates.on("updates", updatesHandler);
+
+    return () => {
+      updatesTooLong.off("updatesTooLong", updatesTooLongHandler);
+      updatesCombined.off("updatesCombined", updatesCombinedHandler);
+
+      updateShortMessage.off("updateShortMessage", updateShortMessageHandler);
+      updateShortChatMessage.off(
+        "updateShortChatMessage",
+        updateShortChatMessageHandler
+      );
+      updateShortSentMessage.off(
+        "updateShortSentMessage",
+        updateShortSentMessageHandler
+      );
+
+      updateShort.off("updateShort", updateShortHandler);
+      updates.off("updates", updatesHandler);
+    };
   }, []);
 
   return (
@@ -176,6 +476,8 @@ export default function ChatsDialogsScreen({ navigation }) {
               ) : !item.photo ? (
                 <Text style={styles.chatPhotoText}>{item.avatarTitle}</Text>
               ) : null}
+
+              {item.online ? <View style={styles.chatOnline}></View> : null}
             </ImageBackground>
 
             <View style={styles.chatInfo}>
@@ -212,12 +514,18 @@ export default function ChatsDialogsScreen({ navigation }) {
 
               <View style={styles.chatFooter}>
                 <Text style={styles.chatMessage} numberOfLines={2}>
-                  {item.out
+                  {!item.typing && item.out
                     ? "You: "
                     : item.messageFrom
                     ? item.messageFrom + ": "
                     : ""}
-                  {item.media ? item.media : item.message}
+                  {item.typing
+                    ? "Typing..."
+                    : item.media && item.message
+                    ? item.media + ", " + item.message
+                    : item.media
+                    ? item.media
+                    : item.message}
                 </Text>
 
                 {item.unreadCount && !item.out ? (

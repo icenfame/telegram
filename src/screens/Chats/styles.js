@@ -32,12 +32,23 @@ export default StyleSheet.create({
     color: colors.white,
     textAlign: "center",
   },
+  chatOnline: {
+    width: 14,
+    height: 14,
+    backgroundColor: colors.green,
+    borderRadius: 14,
+
+    borderWidth: 2,
+    borderColor: colors.white,
+
+    marginRight: -46,
+    marginBottom: -46,
+  },
 
   chatInfo: {
     flex: 1,
     height: 80,
 
-    // backgroundColor: "green",
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
 
@@ -50,15 +61,11 @@ export default StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-
-    // backgroundColor: "yellow",
   },
   chatTitle: {
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
-
-    // backgroundColor: "red",
   },
   chatTitleText: {
     fontSize: 16,
@@ -68,8 +75,6 @@ export default StyleSheet.create({
   chatDateRead: {
     flexDirection: "row",
     alignItems: "center",
-
-    // backgroundColor: "blue",
   },
   chatDate: {
     fontSize: 14,
@@ -78,7 +83,7 @@ export default StyleSheet.create({
   },
   chatRead: {
     fontSize: 18,
-    color: "green",
+    color: colors.green,
   },
   chatPinned: {
     fontSize: 18,
@@ -97,20 +102,15 @@ export default StyleSheet.create({
   },
 
   chatFooter: {
-    // backgroundColor: "purple",
     flexDirection: "row",
-
     alignItems: "center",
   },
   chatMessage: {
+    flex: 1,
     height: 48,
 
     fontSize: 15,
     color: "grey",
-
-    flex: 1,
-
-    // backgroundColor: "aqua",
   },
   chatUnreadCount: {
     minWidth: 20,
@@ -121,7 +121,7 @@ export default StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
 
-    backgroundColor: "green",
+    backgroundColor: colors.green,
   },
   chatUnreadCountText: {
     fontSize: 14,
