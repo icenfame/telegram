@@ -3,7 +3,7 @@ export function getAvatarColor(peerId) {
     "#ff516a", // red
     "#54cb68", // green
     "#2a9ef1", // blue
-    "#665fff", // violet
+    "#7b75f5", // violet
     "#d669ed", // pink
     "#28c9b7", // cyan
     "#ffa85c", // orange

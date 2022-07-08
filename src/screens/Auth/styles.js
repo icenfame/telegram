@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -19,7 +19,7 @@ export default StyleSheet.create({
     marginBottom: 4,
   },
   logoCaption: {
-    color: "grey",
+    color: colors.gray,
     marginBottom: 16,
   },
 
@@ -54,7 +54,7 @@ export default StyleSheet.create({
     borderRadius: 12,
   },
   buttonText: {
-    color: "#fff",
+    color: colors.white,
 
     textAlign: "center",
     textTransform: "uppercase",

@@ -4,6 +4,7 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.gray6,
   },
 
   chat: {
@@ -51,7 +52,7 @@ export default StyleSheet.create({
     height: 80,
 
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: colors.gray6,
 
     paddingRight: 8,
   },
@@ -80,7 +81,7 @@ export default StyleSheet.create({
   chatDate: {
     fontSize: 14,
     marginLeft: 4,
-    color: "grey",
+    color: colors.gray,
   },
   chatRead: {
     fontSize: 18,
@@ -88,7 +89,7 @@ export default StyleSheet.create({
   },
   chatPinned: {
     fontSize: 18,
-    color: "grey",
+    color: colors.gray,
   },
   chatVerified: {
     fontSize: 16,
@@ -111,7 +112,7 @@ export default StyleSheet.create({
     height: 48,
 
     fontSize: 15,
-    color: "grey",
+    color: colors.gray,
   },
   chatUnreadCount: {
     minWidth: 20,
@@ -127,7 +128,7 @@ export default StyleSheet.create({
   chatUnreadCountText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#fff",
+    color: colors.white,
     textAlign: "center",
   },
 });
