@@ -41,8 +41,9 @@ export default StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.white,
 
-    marginRight: -46,
-    marginBottom: -46,
+    position: "absolute",
+    top: 48,
+    left: 48,
   },
 
   chatInfo: {
