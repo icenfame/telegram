@@ -1,8 +1,5 @@
-import KeyboardAvoider from "../../components/KeyboardAvoider";
 import mtproto from "../../mtproto";
-import colors from "../../styles/colors";
 import styles from "./styles";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Buffer } from "buffer";
 import React, { useEffect, useState, useRef } from "react";
 import { Text, View, TextInput, TouchableOpacity, Image } from "react-native";
@@ -11,10 +8,6 @@ export default function SettingsProfile({ navigation }) {
   const [profile, setProfile] = useState(null);
 
   useEffect(() => {
-    // mtproto.updates.on("updates", (updateInfo) => {
-    //   console.log("updates:", updateInfo);
-    // });
-
     (async () => {
       const profile = await mtproto.call("users.getFullUser", {
         id: {
@@ -44,16 +37,7 @@ export default function SettingsProfile({ navigation }) {
 
   const logOut = async () => {
     await mtproto.call("auth.logOut");
-
-    // (async () => {
-    //   await AsyncStorage.clear();
-
-    //   const res = await AsyncStorage.getAllKeys();
-
-    //   console.log(res);
-    // })();
-
-    await navigation.replace("AuthPhone");
+    navigation.replace("AuthPhone");
   };
 
   return (

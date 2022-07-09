@@ -5,13 +5,18 @@ import { getAvatarTitle } from "../utils/getAvatarTitle";
 import { getChatPhoto } from "../utils/getChatPhoto";
 import { getMediaType } from "../utils/getMediaType";
 
-export async function getDialogs(limit, includePinned = false) {
+export async function getDialogs(
+  limit,
+  includePinned = false,
+  offset_date = 0
+) {
   const dialogs = await mtproto.call("messages.getDialogs", {
     offset_peer: {
       _: "inputPeerEmpty",
     },
     exclude_pinned: true,
     limit,
+    offset_date,
   });
 
   if (includePinned) {
@@ -19,9 +24,10 @@ export async function getDialogs(limit, includePinned = false) {
       folder_id: 0,
     });
 
-    dialogs.chats = [...pinned.chats, ...dialogs.chats];
     dialogs.dialogs = [...pinned.dialogs, ...dialogs.dialogs];
+    dialogs.chats = [...pinned.chats, ...dialogs.chats];
     dialogs.messages = [...pinned.messages, ...dialogs.messages];
+    dialogs.users = [...pinned.users, ...dialogs.users];
   }
 
   const peers = {
@@ -41,6 +47,7 @@ export async function getDialogs(limit, includePinned = false) {
     messageActionChatEditPhoto: "Updated group photo",
     messageActionChatDeletePhoto: "Removed group photo",
     messageActionContactSignUp: "Joined Telegram", // updateNewMessage - updates
+    messageActionPhoneCall: "Phone call",
   };
 
   const chats = [];

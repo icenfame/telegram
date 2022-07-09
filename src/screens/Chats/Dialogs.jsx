@@ -16,11 +16,14 @@ import {
   TouchableOpacity,
   ImageBackground,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 
 export default function ChatsDialogs({ navigation }) {
   const chatsRef = useRef([]);
   const [chats, setChats] = useState([]);
+  const loading = useRef(false);
+  const [scrollEnd, setScrollEnd] = useState(false);
 
   useEffect(() => {
     const updatesTooLongHandler = (updateInfo) => {
@@ -285,8 +288,17 @@ export default function ChatsDialogs({ navigation }) {
         offline: false,
       });
 
-      const dialogs = await getDialogs(5);
+      loading.current = true;
+
+      setScrollEnd(false);
+      setChats((chatsRef.current = []));
+
+      const dialogs = await getDialogs(15, true);
+
+      setScrollEnd(dialogs.length < 15);
       setChats((chatsRef.current = dialogs));
+
+      loading.current = false;
     })();
 
     const updatesTooLong = mtproto.updates.on(
@@ -333,9 +345,34 @@ export default function ChatsDialogs({ navigation }) {
     };
   }, []);
 
+  const loadMoreDialogs = async (event) => {
+    if (scrollEnd || loading.current) {
+      return;
+    }
+
+    console.log(event);
+    loading.current = true;
+
+    const dialogs = await getDialogs(
+      15,
+      false,
+      chatsRef.current.slice(-1)[0].dateSeconds
+    );
+
+    setScrollEnd(!!!dialogs.length);
+    setChats((chatsRef.current = [...chatsRef.current, ...dialogs]));
+
+    loading.current = false;
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
+        onEndReached={loadMoreDialogs}
+        onEndReachedThreshold={0.4}
+        ListFooterComponent={() =>
+          !scrollEnd ? <ActivityIndicator style={styles.chatLoading} /> : null
+        }
         data={chats}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (

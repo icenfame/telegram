@@ -131,4 +131,9 @@ export default StyleSheet.create({
     color: colors.white,
     textAlign: "center",
   },
+
+  chatLoading: {
+    marginVertical: 32,
+    alignSelf: "center",
+  },
 });
