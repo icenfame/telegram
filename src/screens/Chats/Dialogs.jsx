@@ -5,6 +5,7 @@ import { generateRandomId } from "../../utils/generateRandomId";
 import { getAvatarColor } from "../../utils/getAvatarColor";
 import { getAvatarTitle } from "../../utils/getAvatarTitle";
 import { getChatPhoto } from "../../utils/getChatPhoto";
+import { getDialogs } from "../../utils/getDialogs";
 import { getMediaType } from "../../utils/getMediaType";
 import styles from "./styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -284,118 +285,8 @@ export default function ChatsDialogs({ navigation }) {
         offline: false,
       });
 
-      const dialogs = await mtproto.call("messages.getDialogs", {
-        offset_peer: {
-          _: "inputPeerEmpty",
-        },
-        exclude_pinned: true,
-        limit: 7,
-      });
-
-      console.log(Object.keys(dialogs), dialogs.dialogs.length);
-      // console.log(dialogs);
-
-      const allChats = [];
-
-      for (const dialog of dialogs.dialogs) {
-        if (dialog.peer._ === "peerUser") {
-          const user = dialogs.users.find(
-            (user) => user.id === dialog.peer.user_id
-          );
-          const message = dialogs.messages.find(
-            (message) => message.peer_id.user_id === dialog.peer.user_id
-          );
-          const photo = await getChatPhoto("inputPeerUser", user);
-
-          allChats.push({
-            id: user.id,
-            accessHash: user.access_hash,
-            title: user.self
-              ? "Saved messages"
-              : user.first_name + (user.last_name ? " " + user.last_name : ""),
-            message: message.message,
-            messageId: message.id,
-            media: getMediaType(message),
-            unreadCount: dialog.unread_count,
-            out: message.out,
-            read: dialog.read_outbox_max_id === dialog.top_message,
-            pinned: dialog.pinned,
-            verified: user.verified,
-            self: user.self,
-            photo: photo,
-            avatarTitle: getAvatarTitle(user.first_name, user.last_name),
-            avatarColor: getAvatarColor(user.id),
-            online: user.status._ === "userStatusOnline",
-            typing: false,
-            date: convertDate(message.date),
-            dateSeconds: message.date,
-          });
-        }
-
-        if (dialog.peer._ === "peerChat") {
-          const chat = dialogs.chats.find(
-            (chat) => chat.id === dialog.peer.chat_id
-          );
-          const message = dialogs.messages.find(
-            (message) => message.peer_id.chat_id === dialog.peer.chat_id
-          );
-          const user = dialogs.users.find(
-            (user) => user.id === message.from_id.user_id
-          );
-          const photo = await getChatPhoto("inputPeerChat", chat);
-
-          allChats.push({
-            id: chat.id,
-            title: chat.title,
-            message: message.message,
-            messageFrom: user.first_name,
-            media: getMediaType(message),
-            unreadCount: dialog.unread_count,
-            out: message.out,
-            read: dialog.read_outbox_max_id === dialog.top_message,
-            pinned: dialog.pinned,
-            verified: chat.verified,
-            photo: photo,
-            avatarTitle: getAvatarTitle(chat.title),
-            avatarColor: getAvatarColor(chat.id),
-            date: convertDate(message.date),
-            dateSeconds: message.date,
-          });
-        }
-
-        if (dialog.peer._ === "peerChannel") {
-          const chat = dialogs.chats.find(
-            (chat) => chat.id === dialog.peer.channel_id
-          );
-          const message = dialogs.messages.find(
-            (message) => message.peer_id.channel_id === dialog.peer.channel_id
-          );
-          const user = dialogs.users.find(
-            (user) => user.id === message?.from_id?.user_id
-          );
-          const photo = await getChatPhoto("inputPeerChannel", chat);
-
-          allChats.push({
-            id: chat.id,
-            title: chat.title,
-            message: message.message,
-            messageFrom: user?.first_name,
-            media: getMediaType(message),
-            unreadCount: dialog.unread_count,
-            out: !chat.broadcast && message.out,
-            read: dialog.read_outbox_max_id === dialog.top_message,
-            pinned: dialog.pinned,
-            verified: chat.verified,
-            photo: photo,
-            avatarTitle: getAvatarTitle(chat.title),
-            avatarColor: getAvatarColor(chat.id),
-            date: convertDate(message.date),
-            dateSeconds: message.date,
-          });
-        }
-      }
-
-      setChats((chatsRef.current = allChats));
+      const dialogs = await getDialogs(5);
+      setChats((chatsRef.current = dialogs));
     })();
 
     const updatesTooLong = mtproto.updates.on(
@@ -451,7 +342,7 @@ export default function ChatsDialogs({ navigation }) {
           <View
             style={[
               styles.chat,
-              item.pinned ? { backgroundColor: "#f5f5f5" } : null,
+              item.pinned ? { backgroundColor: colors.gray6 } : null,
             ]}
           >
             <ImageBackground
@@ -521,6 +412,8 @@ export default function ChatsDialogs({ navigation }) {
                     : ""}
                   {item.typing
                     ? "Typing..."
+                    : item.messageService
+                    ? item.messageService
                     : item.media && item.message
                     ? item.media + ", " + item.message
                     : item.media
