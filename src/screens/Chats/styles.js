@@ -88,12 +88,17 @@ export default StyleSheet.create({
     color: colors.green,
   },
   chatPinned: {
-    fontSize: 18,
+    fontSize: 20,
     color: colors.gray,
   },
   chatVerified: {
     fontSize: 16,
     color: colors.primary,
+    marginLeft: 4,
+  },
+  chatMuted: {
+    fontSize: 16,
+    color: colors.gray,
     marginLeft: 4,
   },
   chatSavedMessages: {

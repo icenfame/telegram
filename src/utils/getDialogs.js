@@ -80,7 +80,7 @@ export async function getDialogs(
       title: userPeer
         ? user.self
           ? "Saved messages"
-          : `${user.first_name} ${user.last_name ?? ""}`
+          : `${user.first_name}${user.last_name ? " " + user.last_name : ""}`
         : chat.title,
       verified: userPeer ? user.verified : chat.verified,
       photo: await getChatPhoto(inputPeer, userPeer ? user : chat),
@@ -97,6 +97,7 @@ export async function getDialogs(
       unreadCount: dialog.unread_count,
       read: dialog.read_outbox_max_id === dialog.top_message,
       pinned: dialog.pinned,
+      muted: dialog.notify_settings?.mute_until,
       date: convertDate(message.date),
       dateSeconds: message.date,
       online:

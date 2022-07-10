@@ -289,9 +289,7 @@ export default function ChatsDialogs({ navigation }) {
       });
 
       loading.current = true;
-
       setScrollEnd(false);
-      setChats((chatsRef.current = []));
 
       const dialogs = await getDialogs(15, true);
 
@@ -350,8 +348,8 @@ export default function ChatsDialogs({ navigation }) {
       return;
     }
 
-    console.log(event);
     loading.current = true;
+    console.log(event);
 
     const dialogs = await getDialogs(
       15,
@@ -421,6 +419,13 @@ export default function ChatsDialogs({ navigation }) {
                       name="check-decagram"
                     />
                   ) : null}
+
+                  {item.muted ? (
+                    <MaterialCommunityIcons
+                      style={styles.chatMuted}
+                      name="volume-off"
+                    />
+                  ) : null}
                 </View>
 
                 <View style={styles.chatDateRead}>
@@ -459,7 +464,12 @@ export default function ChatsDialogs({ navigation }) {
                 </Text>
 
                 {item.unreadCount && !item.out ? (
-                  <View style={styles.chatUnreadCount}>
+                  <View
+                    style={[
+                      styles.chatUnreadCount,
+                      item.muted ? { backgroundColor: colors.gray } : null,
+                    ]}
+                  >
                     <Text style={styles.chatUnreadCountText}>
                       {item.unreadCount}
                     </Text>
