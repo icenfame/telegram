@@ -1,0 +1,21 @@
+Chat: updateShortMessage - updateShortMessage
+  updateEditMessage - updates
+  updateDeleteMessages - updates
+  updateUserTyping - updateShort
+  updateReadHistoryInbox - updates
+  updateReadHistoryOutbox - updates
+  updateUserPhoto - updateShort
+
+Group: updateShortChatMessage - updateShortChatMessage
+  updateEditMessage - updates
+  updateDeleteMessages - updates
+  updateChatUserTyping - updateShort
+  updateReadHistoryInbox - updates
+  updateReadHistoryOutbox - updates
+
+Channel: updateNewChannelMessage - updates
+  updateEditChannelMessage - updates
+  updateDeleteChannelMessages - updateShort
+  updateChannelUserTyping - updateShort
+  updateReadChannelInbox - updates
+  updateReadChannelOutbox - updates
