@@ -1,9 +1,11 @@
-import KeyboardAvoider from "../../components/KeyboardAvoider";
+import React, { useEffect, useRef, useState } from "react";
+import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
+
 import mtproto from "../../mtproto";
+import KeyboardAvoider from "../../components/KeyboardAvoider";
+
 import colors from "../../styles/colors";
 import styles from "./styles";
-import React, { useEffect, useState, useRef } from "react";
-import { Text, View, TextInput, TouchableOpacity, Image } from "react-native";
 
 export default function AuthCode({ navigation, route }) {
   const [code, setCode] = useState(null);

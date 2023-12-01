@@ -1,14 +1,11 @@
-// ======================
-// iOS Keyboard Avoider
-// ======================
 import React, { useEffect, useRef } from "react";
 import {
-  Keyboard,
-  View,
   Animated,
   Easing,
+  Keyboard,
   Platform,
   TouchableWithoutFeedback,
+  View,
 } from "react-native";
 
 export default function KeyboardAvoider(props) {
@@ -49,7 +46,7 @@ export default function KeyboardAvoider(props) {
       keyboardWillShowSubscribe.remove();
       keyboardWillHideSubscribe.remove();
     };
-  });
+  }, []);
 
   return props.hasScrollable === true ? (
     <View style={[props.style, { alignSelf: "stretch" }]}>

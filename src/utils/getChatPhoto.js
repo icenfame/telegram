@@ -1,5 +1,5 @@
-import mtproto from "../mtproto";
 import { Buffer } from "buffer";
+import mtproto from "../mtproto";
 
 export async function getChatPhoto(inputPeer, peer) {
   if (

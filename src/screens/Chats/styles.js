@@ -6,24 +6,19 @@ export default StyleSheet.create({
     flex: 1,
     backgroundColor: colors.gray6,
   },
-
   chat: {
     alignSelf: "stretch",
     backgroundColor: colors.white,
     justifyContent: "space-between",
     flexDirection: "row",
-
     height: 80,
   },
-
   chatPhoto: {
     width: 64,
     height: 64,
-
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "center",
-
     margin: 8,
     borderRadius: 64,
   },
@@ -38,28 +33,21 @@ export default StyleSheet.create({
     height: 14,
     backgroundColor: colors.green,
     borderRadius: 14,
-
     borderWidth: 2,
     borderColor: colors.white,
-
     position: "absolute",
     top: 48,
     left: 48,
   },
-
   chatInfo: {
     flex: 1,
     height: 80,
-
     borderBottomWidth: 1,
     borderBottomColor: colors.gray6,
-
     paddingRight: 8,
   },
-
   chatHeader: {
     height: 32,
-
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -73,7 +61,6 @@ export default StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-
   chatDateRead: {
     flexDirection: "row",
     alignItems: "center",
@@ -104,10 +91,8 @@ export default StyleSheet.create({
   chatSavedMessages: {
     fontSize: 40,
     color: colors.white,
-
     textAlign: "center",
   },
-
   chatFooter: {
     flexDirection: "row",
     alignItems: "center",
@@ -115,7 +100,6 @@ export default StyleSheet.create({
   chatMessage: {
     flex: 1,
     height: 48,
-
     fontSize: 15,
     color: colors.gray,
   },
@@ -124,10 +108,8 @@ export default StyleSheet.create({
     height: 20,
     borderRadius: 20,
     paddingHorizontal: 5,
-
     alignItems: "center",
     justifyContent: "center",
-
     backgroundColor: colors.green,
   },
   chatUnreadCountText: {
@@ -136,7 +118,6 @@ export default StyleSheet.create({
     color: colors.white,
     textAlign: "center",
   },
-
   chatLoading: {
     marginVertical: 32,
     alignSelf: "center",

@@ -1,10 +1,11 @@
-import KeyboardAvoider from "../../components/KeyboardAvoider";
+import React, { useEffect, useRef, useState } from "react";
+import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
+
 import mtproto from "../../mtproto";
+import KeyboardAvoider from "../../components/KeyboardAvoider";
+
 import colors from "../../styles/colors";
 import styles from "./styles";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useState, useRef } from "react";
-import { Text, View, TextInput, TouchableOpacity, Image } from "react-native";
 
 export default function AuthPhone({ navigation }) {
   const [phone, setPhone] = useState(null);
@@ -16,17 +17,11 @@ export default function AuthPhone({ navigation }) {
   };
 
   useEffect(() => {
-    // (async () => {
-    //   await AsyncStorage.clear();
-
-    //   const res = await AsyncStorage.getAllKeys();
-
-    //   console.log(res);
-    // })();
-
     const start = Date.now();
+
     mtproto.call("help.getNearestDc").then((result) => {
       console.log(result.country, Date.now() - start, "ms");
+
       setCountry(result.country);
       input.current.focus();
     });
@@ -41,7 +36,6 @@ export default function AuthPhone({ navigation }) {
 
         if (me) {
           navigation.replace("SettingsProfile");
-
           return;
         }
       } catch (error) {}

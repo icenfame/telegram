@@ -1,25 +1,25 @@
+import React, { useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  ImageBackground,
+  Text,
+  View,
+} from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 import mtproto from "../../mtproto";
-import colors from "../../styles/colors";
 import { convertDate } from "../../utils/convertDate";
-import { generateRandomId } from "../../utils/generateRandomId";
 import { getAvatarColor } from "../../utils/getAvatarColor";
 import { getAvatarTitle } from "../../utils/getAvatarTitle";
 import { getChatPhoto } from "../../utils/getChatPhoto";
 import { getDialogs } from "../../utils/getDialogs";
 import { getMediaType } from "../../utils/getMediaType";
-import styles from "./styles";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useEffect, useState, useRef } from "react";
-import {
-  Text,
-  View,
-  TouchableOpacity,
-  ImageBackground,
-  FlatList,
-  ActivityIndicator,
-} from "react-native";
 
-export default function ChatsDialogs({ navigation }) {
+import colors from "../../styles/colors";
+import styles from "./styles";
+
+export default function ChatsDialogs() {
   const chatsRef = useRef([]);
   const [chats, setChats] = useState([]);
   const loading = useRef(false);
@@ -73,13 +73,13 @@ export default function ChatsDialogs({ navigation }) {
         const user = chat.users[0];
         const message = chat.messages[0];
 
+        const userTitle = user.first_name + (user.last_name ? " " + user.last_name : "");
+
         chatsRef.current = [
           {
             id: user.id,
             accessHash: user.access_hash,
-            title: user.self
-              ? "Saved messages"
-              : user.first_name + (user.last_name ? " " + user.last_name : ""),
+            title: user.self ? "Saved messages" : userTitle,
             message: message.message,
             messageId: message.id,
             media: getMediaType(message),
@@ -292,9 +292,10 @@ export default function ChatsDialogs({ navigation }) {
       setScrollEnd(false);
 
       const dialogs = await getDialogs(15, true);
+      chatsRef.current = dialogs;
 
       setScrollEnd(dialogs.length < 15);
-      setChats((chatsRef.current = dialogs));
+      setChats(chatsRef.current);
 
       loading.current = false;
     })();
@@ -356,9 +357,10 @@ export default function ChatsDialogs({ navigation }) {
       false,
       chatsRef.current.slice(-1)[0].dateSeconds
     );
+    chatsRef.current = [...chatsRef.current, ...dialogs];
 
-    setScrollEnd(!!!dialogs.length);
-    setChats((chatsRef.current = [...chatsRef.current, ...dialogs]));
+    setScrollEnd(!dialogs.length);
+    setChats(chatsRef.current);
 
     loading.current = false;
   };

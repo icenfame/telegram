@@ -1,8 +1,9 @@
+import React, { useEffect, useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Buffer } from "buffer";
+
 import mtproto from "../../mtproto";
 import styles from "./styles";
-import { Buffer } from "buffer";
-import React, { useEffect, useState, useRef } from "react";
-import { Text, View, TextInput, TouchableOpacity, Image } from "react-native";
 
 export default function SettingsProfile({ navigation }) {
   const [profile, setProfile] = useState(null);
@@ -43,40 +44,28 @@ export default function SettingsProfile({ navigation }) {
   return (
     <View style={styles.container}>
       <Image
-        source={{
-          uri: profile?.profile_photo,
-        }}
+        source={{ uri: profile?.profile_photo }}
         style={styles.logo}
       />
 
       <Text style={styles.logoTitle}>
         {profile?.users?.[0]?.first_name} {profile?.users?.[0]?.last_name}
       </Text>
-      <Text style={styles.logoCaption}>+{profile?.users[0]?.phone}</Text>
 
+      <Text style={styles.logoCaption}>+{profile?.users[0]?.phone}</Text>
       <Text style={styles.logoCaption}>{profile?.full_user.about}</Text>
 
       <TouchableOpacity onPress={logOut}>
-        <Text
-          style={{
-            color: "red",
-          }}
-        >
+        <Text style={{ color: "red" }}>
           Logout
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         onPress={() => navigation.push("ChatsDialogs")}
-        style={{
-          marginTop: 64,
-        }}
+        style={{ marginTop: 64 }}
       >
-        <Text
-          style={{
-            fontSize: 20,
-          }}
-        >
+        <Text style={{ fontSize: 20 }}>
           Chats
         </Text>
       </TouchableOpacity>

@@ -2,7 +2,7 @@ import MTProto from "@mtproto/core/envs/browser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import "react-native-get-random-values";
 import { polyfillGlobal } from "react-native/Libraries/Utilities/PolyfillFunctions";
-import { TextEncoder, TextDecoder } from "web-encoding";
+import { TextDecoder, TextEncoder } from "web-encoding";
 
 polyfillGlobal("TextEncoder", () => TextEncoder);
 polyfillGlobal("TextDecoder", () => TextDecoder);

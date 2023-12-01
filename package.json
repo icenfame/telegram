@@ -1,6 +1,6 @@
 {
   "name": "telegram",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "./src/App.js",
   "scripts": {
     "start": "expo start",
@@ -31,7 +31,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
-    "@trivago/prettier-plugin-sort-imports": "^3.2.0",
     "babel-plugin-inline-dotenv": "^1.7.0",
     "prettier": "^2.7.1"
   }

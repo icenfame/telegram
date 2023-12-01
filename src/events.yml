@@ -1,4 +1,5 @@
-Chat: updateShortMessage - updateShortMessage
+Chat:
+  updateShortMessage - updateShortMessage
   updateEditMessage - updates
   updateDeleteMessages - updates
   updateUserTyping - updateShort
@@ -6,14 +7,16 @@ Chat: updateShortMessage - updateShortMessage
   updateReadHistoryOutbox - updates
   updateUserPhoto - updateShort
 
-Group: updateShortChatMessage - updateShortChatMessage
+Group:
+  updateShortChatMessage - updateShortChatMessage
   updateEditMessage - updates
   updateDeleteMessages - updates
   updateChatUserTyping - updateShort
   updateReadHistoryInbox - updates
   updateReadHistoryOutbox - updates
 
-Channel: updateNewChannelMessage - updates
+Channel:
+  updateNewChannelMessage - updates
   updateEditChannelMessage - updates
   updateDeleteChannelMessages - updateShort
   updateChannelUserTyping - updateShort
